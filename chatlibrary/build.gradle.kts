@@ -1,6 +1,9 @@
+import java.util.Properties
+
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("maven-publish")
 }
 
 android {
@@ -41,4 +44,34 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+}
+
+val localProperties = Properties().apply {
+    load(File(rootProject.projectDir, "local.properties").inputStream())
+}
+val mavenUsername: String = localProperties["mavenUsername"] as String
+val mavenPassword: String = localProperties["mavenPassword"] as String
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "Alzhandar"
+                artifactId = "chatlibrary"
+                version = "1.0.0"
+            }
+        }
+
+        repositories { maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/Alzhandar/AndroidLab-2")
+
+                credentials {
+                    username = mavenUsername
+                    password = mavenPassword
+                }
+            }
+        }
+    }
 }
